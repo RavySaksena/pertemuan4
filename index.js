@@ -1,33 +1,50 @@
-const express = require("express")
-const bodyParser = require("body-parser")
+const express = require('express');
+const mongoose = require('mongoose');
 const session = require('express-session');
+const path = require('path');
 
 const app = express();
 
-// Set the view engine to ejs
+// =======================
+// Koneksi MongoDB
+// =======================
+mongoose.connect('mongodb://localhost:27017/mental_health_app', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
+
+// =======================
+// Middleware
+// =======================
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: 'superRahasiaBanget', // kamu bisa ganti jadi lebih rumit
+  resave: false,
+  saveUninitialized: false
+}));
+
+// =======================
+// View Engine
+// =======================
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
- // body-perser to parse request body 
- app.use(bodyParser.urlencoded());
+// =======================
+// Routes
+// =======================
+const authRoutes = require('./routes/auth');
+const indexRoutes = require('./routes/index');
 
- app.set("view engine", "ejs");
+app.use('/auth', authRoutes);
+app.use('/', indexRoutes);
 
- // static files
- app.use(express.static('public'));
-
- // Enabling sessions
- app.use(session({
-    secret: 'some_secret_key',
-    resave: false,
-    saveUninitialized:true,
- }));
-
-//  routes
- const index = require("./routes/index");
- const auth = require("./routes/auth");
-
- app.use('/', index)
- app.use("/auth", auth);
-
- app.listen(3000)
- console.log("Server is running on port 3000");
+// =======================
+// Start Server
+// =======================
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});

@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    // check if user is logged in
-    if (!req.session.user) {
-        return res.redirect('/auth/login');
-    }
+  // 🔧 Tambahkan log biar tau sessionnya kebaca atau enggak
+  console.log("🔐 Session User:", req.session.user);
 
-    // render home/dashboard page with user info
-    res.render('pages/dashboard', {
-        user: req.session.user
-    });
-});  
+  // ⛔️ Kalau belum login, balikin ke login
+  if (!req.session.user) {
+    return res.redirect('/auth/login');
+  }
+
+  // ✅ Kalau sudah login, tampilkan dashboard
+  res.render('user/dashboard', { user: req.session.user });
+});
 
 module.exports = router;
