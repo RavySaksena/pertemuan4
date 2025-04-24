@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Jurnal Saya</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("/images/jurnal.jpg") no-repeat center center fixed;
+      background-size: cover;
+      padding: 40px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(255, 253, 248, 0.95);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    .new-entry {
+      display: block;
+      width: fit-content;
+      margin: 0 auto 30px;
+      padding: 10px 20px;
+      background-color: #2a9d8f;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .new-entry:hover {
+      background-color: #21867a;
+    }
+
+    .entry {
+      background: #ffffff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border-left: 5px solid #f4a261;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .entry h3 {
+      margin: 0 0 10px;
+      color: #444;
+    }
+
+    .entry p {
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .actions {
+      margin-top: 10px;
+    }
+
+    .actions form,
+    .actions button {
+      display: inline-block;
+    }
+
+    .btn {
+      background-color: #f4a261;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 0.9em;
+      margin-right: 5px;
+    }
+
+    .btn:hover {
+      background-color: #e76f51;
+    }
+
+    .btn-danger {
+      background-color: #e63946;
+    }
+
+    .btn-danger:hover {
+      background-color: #c5303d;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 30px;
+      color: #333;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .edit-form {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .edit-form input,
+    .edit-form textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .entry.editing .edit-form {
+      display: block;
+    }
+
+    .entry.editing .entry-content {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Jurnal Saya</h1>
+
+    <a href="/journal/new" class="new-entry">+ Tulis Jurnal Baru</a>
+
+    <% if (journals.length > 0) { %>
+      <% journals.forEach(journal => { %>
+        <div class="entry" id="entry-<%= journal._id %>">
+          <div class="entry-content">
+            <h3><%= journal.title %></h3>
+            <p><%= journal.content %></p>
+            <div class="actions">
+              <button class="btn" onclick="toggleEdit('<%= journal._id %>')">Edit</button>
+              <form action="/journal/<%= journal._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Yakin ingin menghapus jurnal ini?');">
+                <button type="submit" class="btn btn-danger">Hapus</button>
+              </form>
+            </div>
+          </div>
+
+          <form class="edit-form" action="/journal/<%= journal._id %>?_method=PUT" method="POST">
+            <input type="text" name="title" value="<%= journal.title %>" required>
+            <textarea name="content" rows="4" required><%= journal.content %></textarea>
+            <button type="submit" class="btn">Simpan</button>
+            <button type="button" class="btn btn-danger" onclick="toggleEdit('<%= journal._id %>')">Batal</button>
+          </form>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p style="text-align:center; color: #777;">Belum ada jurnal yang ditulis.</p>
+    <% } %>
+
+    <a href="/" class="back-link">← Kembali ke Halaman Utama</a>
+  </div>
+
+  <script>
+    function toggleEdit(id) {
+      const entry = document.getElementById(`entry-${id}`);
+      entry.classList.toggle("editing");
+    }
+  </script>
+</body>
+</html>

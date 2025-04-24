@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const methodOverride = require('method-override');
 const path = require('path');
 
 const app = express();
@@ -20,14 +21,24 @@ mongoose.connect('mongodb://localhost:27017/mental_health_app', {
 // =======================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(methodOverride('_method'));
+
 app.use(session({
-  secret: 'superRahasiaBanget', // Ganti dengan secret yang lebih aman di production
+  secret: 'superRahasiaBanget', // Ganti dengan yang aman di production
   resave: false,
   saveUninitialized: false
 }));
 
-// Middleware session parser khusus mood (bisa dihapus kalau tidak digunakan)
+// Middleware global: inject user dan mood ke semua view
 app.use((req, res, next) => {
+  if (req.session.user) {
+    req.user = req.session.user;
+    res.locals.user = req.session.user;
+  } else {
+    req.user = null;
+    res.locals.user = null;
+  }
+
   res.locals.mood = req.session.mood || null;
   next();
 });
@@ -44,10 +55,12 @@ app.set('views', path.join(__dirname, 'views'));
 const authRoutes = require('./routes/auth');
 const indexRoutes = require('./routes/index');
 const moodTrackerRoutes = require('./routes/mood-tracker');
+const journalRoutes = require('./routes/journal');
 
 app.use('/auth', authRoutes);
 app.use('/', indexRoutes);
 app.use('/mood', moodTrackerRoutes);
+app.use('/journal', journalRoutes);
 
 // =======================
 // Start Server

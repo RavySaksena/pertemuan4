@@ -7,10 +7,8 @@ const User = require('../models/user');
 // GET: Login Page
 // =======================
 router.get("/login", (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
-  res.render('user/login');
+  if (req.session.user) return res.redirect('/');
+  res.render('user/login', { error: null });
 });
 
 // =======================
@@ -25,7 +23,11 @@ router.post("/login", async (req, res) => {
     });
 
     if (user && await bcrypt.compare(password, user.password)) {
-      req.session.user = user;
+      req.session.user = {
+        _id: user._id,
+        username: user.username,
+        fullname: user.fullname
+      };
       return res.redirect('/');
     }
 
@@ -44,10 +46,8 @@ router.post("/login", async (req, res) => {
 // GET: Register Page
 // =======================
 router.get("/register", (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
-  res.render('user/register');
+  if (req.session.user) return res.redirect('/');
+  res.render('user/register', { error: null });
 });
 
 // =======================
@@ -78,7 +78,12 @@ router.post("/register", async (req, res) => {
 
     await newUser.save();
 
-    req.session.user = newUser;
+    req.session.user = {
+      _id: newUser._id,
+      username: newUser.username,
+      fullname: newUser.fullname
+    };
+
     res.redirect('/');
   } catch (err) {
     console.error(err);
@@ -98,8 +103,8 @@ router.get("/logout", (req, res) => {
       return res.redirect('/');
     }
 
-    res.clearCookie('connect.sid'); // Hapus cookie session
-    res.redirect('/auth/login'); // Redirect ke halaman login
+    res.clearCookie('connect.sid');
+    res.redirect('/auth/login');
   });
 });
 
