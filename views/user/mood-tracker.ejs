@@ -64,27 +64,29 @@
   <div class="container mt-5">
     <div class="jumbotron text-center">
       <h1 class="display-4">Mood Tracker</h1>
-      <p class="lead">Bagaimana perasaanmu hari ini?</p>
+      <p class="lead"><%= editMode ? 'Edit Mood Kamu' : 'Bagaimana perasaanmu hari ini?' %></p>
       <hr class="my-4">
 
-      <!-- Form input mood -->
-      <form action="/mood/save" method="POST">
+      <!-- Form input/edit mood -->
+      <form action="<%= editMode ? '/mood/edit/' + mood._id : '/mood/save' %>" method="POST">
         <div class="form-group text-left">
           <label for="moodSelect">Pilih Mood:</label>
           <select class="custom-select" id="moodSelect" name="mood" required>
             <option value="">-- Pilih --</option>
-            <option value="Happy">😊 Senang</option>
-            <option value="Sad">😢 Sedih</option>
-            <option value="Angry">😠 Marah</option>
-            <option value="Anxious">😰 Cemas</option>
-            <option value="Calm">😌 Tenang</option>
+            <option value="Happy" <%= editMode && mood.mood === 'Happy' ? 'selected' : '' %>>😊 Senang</option>
+            <option value="Sad" <%= editMode && mood.mood === 'Sad' ? 'selected' : '' %>>😢 Sedih</option>
+            <option value="Angry" <%= editMode && mood.mood === 'Angry' ? 'selected' : '' %>>😠 Marah</option>
+            <option value="Anxious" <%= editMode && mood.mood === 'Anxious' ? 'selected' : '' %>>😰 Cemas</option>
+            <option value="Calm" <%= editMode && mood.mood === 'Calm' ? 'selected' : '' %>>😌 Tenang</option>
           </select>
         </div>
         <div class="form-group text-left">
           <label for="note">Catatan (opsional):</label>
-          <textarea class="form-control" id="note" name="note" rows="3" placeholder="Ceritakan sedikit tentang harimu..."></textarea>
+          <textarea class="form-control" id="note" name="note" rows="3" placeholder="Ceritakan sedikit tentang harimu..."><%= editMode ? mood.note : '' %></textarea>
         </div>
-        <button type="submit" class="btn btn-outline-dark">Simpan Mood</button>
+        <button type="submit" class="btn btn-outline-dark">
+          <%= editMode ? 'Update Mood' : 'Simpan Mood' %>
+        </button>
         <a href="/" class="btn btn-outline-dark ml-2">Kembali</a>
       </form>
 
@@ -100,6 +102,8 @@
                   <small><%= new Date(m.createdAt).toLocaleString() %></small>
                 </div>
                 <div>
+                  <!-- Tombol Edit -->
+                  <a href="/mood/edit/<%= m._id %>" class="btn btn-sm btn-outline-dark mr-2">✏️</a>
                   <!-- Tombol Hapus -->
                   <form action="/mood/delete/<%= m._id %>" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus mood ini?')">
                     <button type="submit" class="btn btn-sm btn-outline-dark">🗑️</button>
