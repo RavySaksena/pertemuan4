@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  // 🔧 Tambahkan log biar tau sessionnya kebaca atau enggak
+// Middleware auth untuk memastikan user sudah login
+function isAuthenticated(req, res, next) {
+  if (req.session.user) return next();
+  res.redirect('/auth/login');
+}
+
+// GET / (halaman dashboard)
+router.get('/', isAuthenticated, (req, res) => {
+  // Log session user (opsional untuk debug)
   console.log("🔐 Session User:", req.session.user);
 
-  // ⛔️ Kalau belum login, balikin ke login
-  if (!req.session.user) {
-    return res.redirect('/auth/login');
-  }
-
-  // ✅ Kalau sudah login, tampilkan dashboard
+  // Render dashboard jika user sudah login
   res.render('user/dashboard', { user: req.session.user });
 });
 
