@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const methodOverride = require('method-override');
+const flash = require('connect-flash');
 const path = require('path');
 
 const app = express();
@@ -23,11 +24,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
 
+
 app.use(session({
   secret: 'superRahasiaBanget', // Ganti dengan yang aman di production
   resave: false,
   saveUninitialized: false
 }));
+
+  // Flash middleware AFTER session
+app.use(flash());
+
+// Global middleware (UPDATED to include flash)
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  
+  if (req.session.user) {
+    res.locals.user = req.session.user;
+  } else {
+    res.locals.user = null;
+  }
+
+  res.locals.mood = req.session.mood || null;
+  next();
+});
 
 // Middleware global: inject user dan mood ke semua view
 app.use((req, res, next) => {
@@ -56,11 +76,14 @@ const authRoutes = require('./routes/auth');
 const indexRoutes = require('./routes/index');
 const moodTrackerRoutes = require('./routes/mood-tracker');
 const journalRoutes = require('./routes/journal');
+const todosRoutes = require('./routes/todos');
 
 app.use('/auth', authRoutes);
 app.use('/', indexRoutes);
 app.use('/mood', moodTrackerRoutes);
 app.use('/journal', journalRoutes);
+app.use('/todos', todosRoutes);
+
 
 // =======================
 // Start Server
